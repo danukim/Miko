@@ -1,0 +1,12 @@
+*
+!.gitignore
+!MITSUHAVR_Ollama.py
+!app.py
+!audio_streamer.py
+!GPT_SoVITS/
+!GPT_SoVITS/**
+!requirements.txt
+!.env
+!conversation.jsonl
+!LICENSE
+!README.md
