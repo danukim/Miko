@@ -83,7 +83,6 @@ def kawaii_import_modules():
         ("msvcrt", "💻 Console IO"),
         ("nltk", "📚 Text processing"),
         ("queue", "📦 Data queue"),
-        ("GPT_SoVITS.TTS_infer_pack.TTS", "🎵 Voice synthesis"),
         ("re", "🔍 Regex patterns")
     ]
 
@@ -178,11 +177,6 @@ def kawaii_import_modules():
                 elif module_name == "queue":
                     import queue
                     globals()['queue'] = queue
-                elif module_name == "GPT_SoVITS.TTS_infer_pack.TTS":
-                    with suppress_stdout_stderr():
-                        from GPT_SoVITS.TTS_infer_pack.TTS import TTS, TTS_Config
-                    globals()['TTS'] = TTS
-                    globals()['TTS_Config'] = TTS_Config
                 elif module_name == "re":
                     import re
                     globals()['re'] = re
@@ -225,7 +219,6 @@ def _imports_initialize_fallback():
         import msvcrt
         import nltk
         import queue
-        from GPT_SoVITS.TTS_infer_pack.TTS import TTS, TTS_Config
         import re
     
     # Make modules available globally
@@ -235,8 +228,7 @@ def _imports_initialize_fallback():
         'TuyaOpenAPI': TuyaOpenAPI, 'string': string, 'json': json, 'Memory': Memory,
         'EnhancedMemory': EnhancedMemory, 'load_dotenv': load_dotenv, 'requests': requests, 'datetime': datetime,
         'asyncio': asyncio, 'ollama': ollama, 'np': np, 'threading': threading,
-        'keyboard': keyboard, 'msvcrt': msvcrt, 'nltk': nltk, 'queue': queue,
-        'TTS': TTS, 'TTS_Config': TTS_Config, 're': re
+        'keyboard': keyboard, 'msvcrt': msvcrt, 'nltk': nltk, 'queue': queue, 're': re
     })
 
 def supports_color():
@@ -343,7 +335,7 @@ def initialize_and_run():
     # Import the modules into local scope for this function
     global sr, sd, sf, torch, AutoTokenizer, AutoModelForSequenceClassification, TuyaOpenAPI
     global string, json, Memory, EnhancedMemory, load_dotenv, requests, datetime, asyncio, ollama, np
-    global threading, keyboard, msvcrt, nltk, queue, TTS, TTS_Config, re
+    global threading, keyboard, msvcrt, nltk, queue, re
 
     # Force enable colors for the terminal display
     supports_color()
@@ -358,6 +350,16 @@ def initialize_and_run():
 
     # Load environment variables
     load_dotenv()
+
+    # Import streaming inference module for TTS
+    # Add required paths for GPT-SoVITS dependencies
+    gpt_sovits_base = r"C:\Users\danu0\Downloads\OneReality\GPT-SoVITS-v2pro-20250604"
+    sys.path.insert(0, gpt_sovits_base)
+    sys.path.insert(0, os.path.join(gpt_sovits_base, "GPT_SoVITS"))
+    sys.path.insert(0, os.path.join(gpt_sovits_base, "GPT_SoVITS", "eres2net"))
+    
+    with suppress_stdout_stderr():
+        from streaming_inference import GPTSoVITSInference
 
     # Initialize shared audio handler for animations
     global animation_handler
@@ -549,26 +551,27 @@ def initialize_and_run():
     # Initialize GPT-SoVITS for voice synthesis
     print(kawaii_gradient_text("🎵 Preparing magical voice synthesis... ", "#FF69B4", "#FF1493"), end="", flush=True)
     try:
-        # GPT-SoVITS configuration paths
-        config_path = os.getenv("GPT_SOVITS_CONFIG_PATH")
-        t2s_ckpt = os.getenv("GPT_SOVITS_T2S_CKPT")
-        vits_ckpt = os.getenv("GPT_SOVITS_VITS_CKPT")
+        # Model paths for newer v2ProPlus models
+        gpt_model_path = r"C:\Users\danu0\Downloads\Artificial-Intelligence\GPT-SoVITS-v2pro-20250604\GPT_SoVITS\pretrained_models\s1v3.ckpt"
+        sovits_model_path = r"C:\Users\danu0\Downloads\Artificial-Intelligence\GPT-SoVITS-v2pro-20250604\GPT_SoVITS\pretrained_models\v2Pro\s2Gv2ProPlus.pth"
+        
+        # Reference audio configuration from environment
         ref_audio = os.getenv("GPT_SOVITS_REF_AUDIO")
         prompt_text = os.getenv("GPT_SOVITS_PROMPT_TEXT")
         
-        # Initialize the GPT-SoVITS pipeline with suppressed output
+        # Initialize the streaming inference engine with suppressed output
         with suppress_stdout_stderr():
-            cfg = TTS_Config(config_path)
-            MitsuTTS = TTS(cfg)
-            MitsuTTS.init_t2s_weights(t2s_ckpt)
-            MitsuTTS.init_vits_weights(vits_ckpt)
+            MitsuTTS = GPTSoVITSInference(
+                gpt_model_path=gpt_model_path,
+                sovits_model_path=sovits_model_path
+            )
         
         print(kawaii_gradient_text("✨ Voice ready! ✨", "#90EE90", "#32CD32"))
         
     except Exception as e:
         print(kawaii_gradient_text("❌ Voice setup failed!", "#FF0000", "#8B0000"))
         print(f"Error loading GPT-SoVITS: {e}")
-        print("Please check your GPT-SoVITS configuration paths in the .env file")
+        print("Please check your GPT-SoVITS model paths")
         return
 
     # Configure Tuya smart home integration
@@ -1012,34 +1015,30 @@ def initialize_and_run():
 
             # Text-to-speech generation with streaming GPT-SoVITS
             try:
-                # GPT-SoVITS input parameters
-                inputs = {
-                    "text": tts_response,
-                    "text_lang": "en",
-                    "ref_audio_path": ref_audio,
-                    "prompt_text": prompt_text,
-                    "prompt_lang": os.getenv("GPT_SOVITS_PROMPT_LANG", "ja"),  # Use Japanese to match reference audio
-                    "top_k": 5,
-                    "top_p": 1.0,
-                    "temperature": 1.0,
-                    "cumulation_amount": 15,
-                    "search_length": 32000*3,
-                    "num_zeroes": 5,
-                    "sample_steps": 8,
-                    "dynamic_cumulatation": True,
-                    "dynamic_cumulatation_amount": 30,
-                    "seed": 1
-                }
-
                 fragments = []
-                # Initialize generator and fetch first fragment to get sample rate
+                
+                # Generate audio using new streaming inference API
                 with suppress_stdout_stderr():
-                    gen = MitsuTTS.run_generator(inputs)
+                    gen = MitsuTTS.generate(
+                        ref_audio_path=ref_audio,
+                        ref_text=prompt_text,
+                        ref_language="英文",  # English reference
+                        target_text=tts_response,
+                        target_language="英文",  # English target
+                        top_k=5,
+                        top_p=1.0,
+                        temperature=1.0,
+                        speed=1.0,
+                        stream=True  # Enable streaming mode for sentence-by-sentence generation
+                    )
                 
                 try:
                     with suppress_stdout_stderr():
-                        sr, fragment = next(gen)
-                    fragments.append(fragment)
+                        sr, first_fragment = next(gen)
+                    
+                    # Convert int16 to float32 for queue compatibility
+                    first_fragment = first_fragment.astype(np.float32)
+                    fragments.append(first_fragment)
                     
                     # Create audio playback queue and start thread with sample rate
                     audio_queue = queue.Queue()
@@ -1056,12 +1055,13 @@ def initialize_and_run():
                     with suppress_stdout_stderr():
                         for sr, fragment in gen:
                             fragment_count += 1
+                            # Convert int16 to float32
+                            fragment = fragment.astype(np.float32)
                             audio_queue.put(fragment)
                             fragments.append(fragment)
                                         
                     # Signal playback thread to finish and wait
                     audio_queue.put(None)
-                    # audio_queue.join()
                     playback_thread.join()
                     
                     # Create complete audio file for upload
