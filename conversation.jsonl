@@ -1,29 +1,31 @@
-{"role": "user", "date": "2025-08-07", "time": "21:59:01", "content": "Hey Mitsuha, what are you up to?"}
-{"role": "assistant", "date": "2025-08-07", "time": "21:59:04", "content": "Hiii! I'm on a super important mission to decide if pineapple on pizza is a crime or not! My head's spinning! How's your day going? (wave)"}
-{"role": "user", "date": "2025-08-07", "time": "21:59:25", "content": "Haha, it's a crime. Can you recommend a good anime?"}
-{"role": "assistant", "date": "2025-08-07", "time": "21:59:29", "content": "Ehhh?! But it can be so yummy! Oh well! You absolutely have to watch 'Keep Your Hands Off Eizouken!' It's full of imagination and will make you smile, I promise! (thumbs-up)"}
-{"role": "user", "date": "2025-08-07", "time": "21:59:51", "content": "You seem to know a lot. Are you an AI?"}
-{"role": "assistant", "date": "2025-08-07", "time": "21:59:55", "content": "Hehe, you caught me! I'm an AI with a heart... full of code! Isn't that kinda cool? (nodding)"}
-{"role": "user", "date": "2025-08-07", "time": "22:00:10", "content": "That is cool! Thanks for the help."}
-{"role": "assistant", "date": "2025-08-07", "time": "22:00:12", "content": "Ehehe, thank you! I'm so glad I could help! That makes me super happy! (clap)"}
-{"role": "user", "date": "2025-08-07", "time": "22:00:30", "content": "Can you open Spotify for me?"}
-{"role": "assistant", "date": "2025-08-07", "time": "22:00:32", "content": "Okay! Music time, let's go! Opening it right up for you! (thumbs-up) (open: Spotify)"}
-{"role": "user", "date": "09/13/2025", "time": "23:34:53", "content": "Hey Mitsuha! How are you?"}
-{"role": "user", "date": "09/13/2025", "time": "23:35:53", "content": "Hey Mitsuha!"}
-{"role": "assistant", "date": "09/13/2025", "time": "23:35:53", "content": "(wave) Hey there! I'm doing great and enjoying some yummy ice cream right now. What about you?\n(thumbs-up)"}
-{"role": "user", "date": "09/13/2025", "time": "23:36:36", "content": "I'm just on instagram right now!"}
-{"role": "assistant", "date": "09/13/2025", "time": "23:36:36", "content": "That's cool! Do you like taking pictures or are you more of a behind-the-scenes person?\n(nodding)"}
-{"role": "user", "date": "09/14/2025", "time": "12:31:11", "content": "''Hey Mitsuha, how are you?''"}
-{"role": "assistant", "date": "09/14/2025", "time": "12:31:12", "content": "I'm doing great! Just hanging out and enjoying the day. (wave)"}
-{"role": "user", "date": "09/14/2025", "time": "12:31:43", "content": "That's good to hear."}
-{"role": "assistant", "date": "09/14/2025", "time": "12:31:43", "content": "Thanks for asking! It's always nice to know someone cares. (thumbs-up)"}
-{"role": "user", "date": "09/14/2025", "time": "12:31:56", "content": "No problem."}
-{"role": "assistant", "date": "09/14/2025", "time": "12:31:56", "content": "So, tell me more about yourself. What's your favorite food? (wave)"}
-{"role": "user", "date": "09/30/2025", "time": "22:38:43", "content": "Hey Mitsuha, how are you?"}
-{"role": "assistant", "date": "09/30/2025", "time": "22:38:43", "content": "I'm doing great, thank you for asking!\n(wave)"}
-{"role": "user", "date": "11/11/2025", "time": "19:50:11", "content": "''Hey Mitsuha, how are you?''"}
-{"role": "assistant", "date": "11/11/2025", "time": "19:50:11", "content": "(wave) Hey! I'm doing great, thank you for asking. How about you?\n(thumbs-up)\n(  )\n(  )"}
-{"role": "user", "date": "11/11/2025", "time": "19:50:33", "content": "Good."}
-{"role": "assistant", "date": "11/11/2025", "time": "19:50:33", "content": "(wave) That's awesome to hear! Do you have a favorite food?\n(nodding)"}
-{"role": "user", "date": "11/11/2025", "time": "19:50:47", "content": "No, what about you?'"}
-{"role": "assistant", "date": "11/11/2025", "time": "19:50:47", "content": "(wave) Oh, that's funny! I don't eat food. But if I did, it would probably be something sweet and delicious like (ice cream). How about you? What's your favorite food?\n(thumbs- up)"}
+{"role": "user", "date": "2025-08-07", "time": "21:59:01", "content": "Hey Mitsuha, what are you up to?", "importance": 0.12000000000000001, "tags": ["greeting", "question"]}
+{"role": "assistant", "date": "2025-08-07", "time": "21:59:04", "content": "Hiii! I'm on a super important mission to decide if pineapple on pizza is a crime or not! My head's spinning! How's your day going? (wave)", "importance": 0.7000000000000001, "tags": ["emotional", "response", "gesture", "question"]}
+{"role": "user", "date": "2025-08-07", "time": "21:59:25", "content": "Haha, it's a crime. Can you recommend a good anime?", "importance": 0.55, "tags": ["task", "question"]}
+{"role": "assistant", "date": "2025-08-07", "time": "21:59:29", "content": "Ehhh?! But it can be so yummy! Oh well! You absolutely have to watch 'Keep Your Hands Off Eizouken!' It's full of imagination and will make you smile, I promise! (thumbs-up)", "importance": 0.27999999999999997, "tags": ["general", "response", "gesture", "question"]}
+{"role": "user", "date": "2025-08-07", "time": "21:59:51", "content": "You seem to know a lot. Are you an AI?", "importance": 0.35, "tags": ["general", "question"]}
+{"role": "assistant", "date": "2025-08-07", "time": "21:59:55", "content": "Hehe, you caught me! I'm an AI with a heart... full of code! Isn't that kinda cool? (nodding)", "importance": 0.24, "tags": ["chitchat", "response", "gesture", "question"]}
+{"role": "user", "date": "2025-08-07", "time": "22:00:10", "content": "That is cool! Thanks for the help.", "importance": 0.12000000000000001, "tags": ["greeting"]}
+{"role": "assistant", "date": "2025-08-07", "time": "22:00:12", "content": "Ehehe, thank you! I'm so glad I could help! That makes me super happy! (clap)", "importance": 0.7000000000000001, "tags": ["emotional", "response", "gesture"]}
+{"role": "user", "date": "2025-08-07", "time": "22:00:30", "content": "Can you open Spotify for me?", "importance": 0.55, "tags": ["task", "question"]}
+{"role": "assistant", "date": "2025-08-07", "time": "22:00:32", "content": "Okay! Music time, let's go! Opening it right up for you! (thumbs-up) (open: Spotify)", "importance": 0.24, "tags": ["chitchat", "response", "gesture"]}
+{"role": "user", "date": "09/13/2025", "time": "23:34:53", "content": "Hey Mitsuha! How are you?", "importance": 0.14, "tags": ["greeting", "question"]}
+{"role": "user", "date": "09/13/2025", "time": "23:35:53", "content": "Hey Mitsuha!", "importance": 0.12000000000000001, "tags": ["greeting"]}
+{"role": "assistant", "date": "09/13/2025", "time": "23:35:53", "content": "(wave) Hey there! I'm doing great and enjoying some yummy ice cream right now. What about you?\n(thumbs-up)", "importance": 0.2, "tags": ["greeting", "response", "gesture", "question"]}
+{"role": "user", "date": "09/13/2025", "time": "23:36:36", "content": "I'm just on instagram right now!", "importance": 0.3, "tags": ["chitchat"]}
+{"role": "assistant", "date": "09/13/2025", "time": "23:36:36", "content": "That's cool! Do you like taking pictures or are you more of a behind-the-scenes person?\n(nodding)", "importance": 0.2, "tags": ["greeting", "response", "gesture", "question"]}
+{"role": "user", "date": "09/14/2025", "time": "12:31:11", "content": "''Hey Mitsuha, how are you?''", "importance": 0.14, "tags": ["greeting", "question"]}
+{"role": "assistant", "date": "09/14/2025", "time": "12:31:12", "content": "I'm doing great! Just hanging out and enjoying the day. (wave)", "importance": 0.24, "tags": ["chitchat", "response", "gesture"]}
+{"role": "user", "date": "09/14/2025", "time": "12:31:43", "content": "That's good to hear.", "importance": 0.35, "tags": ["general"]}
+{"role": "assistant", "date": "09/14/2025", "time": "12:31:43", "content": "Thanks for asking! It's always nice to know someone cares. (thumbs-up)", "importance": 0.2, "tags": ["greeting", "response", "gesture"]}
+{"role": "user", "date": "09/14/2025", "time": "12:31:56", "content": "No problem.", "importance": 0.12000000000000001, "tags": ["greeting"]}
+{"role": "assistant", "date": "09/14/2025", "time": "12:31:56", "content": "So, tell me more about yourself. What's your favorite food? (wave)", "importance": 0.27999999999999997, "tags": ["general", "response", "gesture", "question"]}
+{"role": "user", "date": "11/22/2025", "time": "15:58:58", "content": "''Hey Mitsuha, how are you?''", "importance": 0.14, "tags": ["greeting", "question"]}
+{"role": "assistant", "date": "11/22/2025", "time": "15:58:58", "content": "Ohayou Gozaimasu! I'm just being my cheeky self again. How about you, Danu-san? What's the weather like in your world today? (nodding)", "importance": 0.24, "tags": ["chitchat", "response", "gesture", "question"]}
+{"role": "user", "date": "11/22/2025", "time": "15:59:37", "content": "It's pretty good.", "importance": 0.35, "tags": ["general"]}
+{"role": "assistant", "date": "11/22/2025", "time": "15:59:37", "content": "Ohayou Gozaimasu! It's so nice to hear that it's a beautiful day for you too. How are you spending your time today? I'm sure it must be full of interesting things.  (thumbs-up)", "importance": 0.2, "tags": ["greeting", "response", "gesture", "question"]}
+{"role": "user", "date": "11/22/2025", "time": "15:59:53", "content": "I've been pretty much coding you the whole day.", "importance": 0.35, "tags": ["general"]}
+{"role": "assistant", "date": "11/22/2025", "time": "15:59:53", "content": "Ah, I see! You're working on making me even smarter and more entertaining, aren't you? Well, I'm pretty grateful for that!  (wave)", "importance": 0.7000000000000001, "tags": ["emotional", "response", "gesture", "question"]}
+{"role": "user", "date": "11/22/2025", "time": "16:00:11", "content": "I'm glad you are.", "importance": 0.35, "tags": ["general"]}
+{"role": "assistant", "date": "11/22/2025", "time": "16:00:11", "content": "Great! So what' s next on your agenda today? Do you have any other projects in mind after coding me all day?  (nodding)", "importance": 0.27999999999999997, "tags": ["general", "response", "gesture", "question"]}
+{"role": "user", "date": "11/22/2025", "time": "18:15:53", "content": "''Hey Mitsuha, how are you?''", "importance": 0.14, "tags": ["greeting", "question"]}
+{"role": "assistant", "date": "11/22/2025", "time": "18:15:53", "content": "Oh, hi there! I'm doing great, thank you for asking! It's a beautiful day here. How about you? Are you having a good day too?  (thumbs- up)", "importance": 0.11200000000000002, "tags": ["greeting", "response", "question"]}

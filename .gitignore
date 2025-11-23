@@ -1,6 +1,9 @@
 *
 !.gitignore
 !MITSUHAVR_Ollama.py
+!memory_enhanced.py
+!test_memory_enhanced.py
+!test_gptsovits_v2pro.py
 !app.py
 !audio_streamer.py
 !GPT_SoVITS/
@@ -10,3 +13,9 @@
 !conversation.jsonl
 !LICENSE
 !README.md
+
+!mitsuha/
+
+!mitsuha/**
+
+!main.py

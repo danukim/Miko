@@ -138,7 +138,9 @@ def kawaii_import_modules():
                 elif module_name == "vectordb":
                     with suppress_stdout_stderr():
                         from vectordb import Memory
+                        from memory_enhanced import EnhancedMemory
                     globals()['Memory'] = Memory
+                    globals()['EnhancedMemory'] = EnhancedMemory
                 elif module_name == "dotenv":
                     with suppress_stdout_stderr():
                         from dotenv import load_dotenv
@@ -211,6 +213,7 @@ def _imports_initialize_fallback():
         import string
         import json
         from vectordb import Memory
+        from memory_enhanced import EnhancedMemory
         from dotenv import load_dotenv
         import requests
         from datetime import datetime
@@ -230,7 +233,7 @@ def _imports_initialize_fallback():
         'sr': sr, 'sd': sd, 'sf': sf, 'torch': torch,
         'AutoTokenizer': AutoTokenizer, 'AutoModelForSequenceClassification': AutoModelForSequenceClassification,
         'TuyaOpenAPI': TuyaOpenAPI, 'string': string, 'json': json, 'Memory': Memory,
-        'load_dotenv': load_dotenv, 'requests': requests, 'datetime': datetime,
+        'EnhancedMemory': EnhancedMemory, 'load_dotenv': load_dotenv, 'requests': requests, 'datetime': datetime,
         'asyncio': asyncio, 'ollama': ollama, 'np': np, 'threading': threading,
         'keyboard': keyboard, 'msvcrt': msvcrt, 'nltk': nltk, 'queue': queue,
         'TTS': TTS, 'TTS_Config': TTS_Config, 're': re
@@ -339,7 +342,7 @@ def initialize_and_run():
 
     # Import the modules into local scope for this function
     global sr, sd, sf, torch, AutoTokenizer, AutoModelForSequenceClassification, TuyaOpenAPI
-    global string, json, Memory, load_dotenv, requests, datetime, asyncio, ollama, np
+    global string, json, Memory, EnhancedMemory, load_dotenv, requests, datetime, asyncio, ollama, np
     global threading, keyboard, msvcrt, nltk, queue, TTS, TTS_Config, re
 
     # Force enable colors for the terminal display
@@ -464,13 +467,15 @@ def initialize_and_run():
     tuya = os.getenv("USE_TUYA")
     lang_code = os.getenv("LANGUAGE")
 
-    # Initialize conversation memory
+    # Initialize enhanced conversation memory
     print(kawaii_gradient_text("🧠 Loading memories... ", "#FFB6C1", "#DDA0DD"), end="", flush=True)
     with suppress_stdout_stderr():
-        memory = Memory()
+        base_memory = Memory()
         with open("conversation.jsonl", "r", encoding="utf-8") as f:
             conversation_data = [json.dumps(json.loads(line)) for line in f]
-        memory.save(conversation_data)
+        base_memory.save(conversation_data)
+        # Wrap with EnhancedMemory for smart retrieval
+        memory = EnhancedMemory(base_memory, "conversation.jsonl")
     print(kawaii_gradient_text("✨ Done! ✨", "#90EE90", "#32CD32"))
 
     # Initialize speech-to-text recorder (voice mode only)
@@ -483,8 +488,8 @@ def initialize_and_run():
             pass  # Silent operation
 
         def on_realtime_transcription_update(text):
-            """Display real-time transcription as user speaks."""
-            print(f"\r{text}", end="", flush=True)
+            """Disabled - no streaming transcription to avoid incorrect intermediate results."""
+            pass  # Disabled to prevent incorrect streaming transcriptions
 
         def preprocess_text(text):
             """Clean and format transcribed text."""
@@ -529,7 +534,7 @@ def initialize_and_run():
                 post_speech_silence_duration=unknown_sentence_detection_pause,
                 min_length_of_recording=1.1,
                 min_gap_between_recordings=0,
-                enable_realtime_transcription=True,
+                enable_realtime_transcription=False,  # Disabled to show only final transcription
                 realtime_processing_pause=0.02,
                 silero_deactivity_detection=True,
                 early_transcription_on_silence=0.2,
@@ -562,8 +567,8 @@ def initialize_and_run():
         
     except Exception as e:
         print(kawaii_gradient_text("❌ Voice setup failed!", "#FF0000", "#8B0000"))
-        # print(f"Error loading GPT-SoVITS: {e}")
-        # print("Please check your GPT-SoVITS configuration paths in the .env file")
+        print(f"Error loading GPT-SoVITS: {e}")
+        print("Please check your GPT-SoVITS configuration paths in the .env file")
         return
 
     # Configure Tuya smart home integration
@@ -753,9 +758,8 @@ def initialize_and_run():
 
             clear_input_buffer()
 
-            # Save user message
-            with open(r"conversation.jsonl", "a", encoding="UTF-8") as c:
-                c.write("\n" + json.dumps(new_line, ensure_ascii=False))
+            # Save user message with importance metadata
+            memory.save_with_metadata(new_line)
 
             # Smart home device control
             devices = [os.getenv("DEVICE_1"), os.getenv("DEVICE_2")]
@@ -789,17 +793,30 @@ def initialize_and_run():
                             # Continue with conversation even if smart home control fails
                             pass
 
-            # Retrieve relevant conversation history
+            # Retrieve relevant conversation history with smart search
             query = f"""{text}"""
-            results = memory.search(query, top_n=2)
-            extracted_dicts = [result["chunk"] for result in results]
-
-            line1 = str(extracted_dicts[0])
-            line2 = str(extracted_dicts[1])
-            line1_dict = json.loads(line1)
-            line2_dict = json.loads(line2)
-            line1_dict = json.dumps(line1_dict, separators=(",", ":"))
-            line2_dict = json.dumps(line2_dict, separators=(",", ":"))
+            current_time = datetime.now()
+            
+            # Check for repetitive queries
+            repetition_info = memory.detect_repetition(query, current_time, time_window_hours=24)
+            
+            # Get smart memory results (combines similarity + temporal + importance)
+            smart_results = memory.search_smart(query, current_time, top_n=5)
+            
+            # Extract messages for context (backward compatible with old code)
+            if len(smart_results) >= 2:
+                line1 = smart_results[0]['chunk']
+                line2 = smart_results[1]['chunk']
+                line1_dict = json.loads(line1)
+                line2_dict = json.loads(line2)
+                line1_dict = json.dumps(line1_dict, separators=(",", ":"))
+                line2_dict = json.dumps(line2_dict, separators=(",", ":"))
+            else:
+                # Fallback if not enough results
+                line1 = json.dumps({"role": "system", "content": "No relevant memories"})
+                line2 = line1
+                line1_dict = line1
+                line2_dict = line2
 
             # Build conversation context
             with open("conversation.jsonl", "r", encoding="UTF-8") as file:
@@ -845,9 +862,9 @@ def initialize_and_run():
                     line["content"] = content
                 cleaned_lines.append(line)
             
-            memory.save([json.dumps(new_line)])
+            # Note: User message already saved with metadata earlier
 
-            # Prepare AI prompt
+            # Prepare AI prompt with temporal context
             now = datetime.now()
             date = now.strftime("%m/%d/%Y")
             time_1 = now.strftime("%H:%M:%S")
@@ -861,6 +878,20 @@ def initialize_and_run():
                 content = re.sub(r'^\d{4}-\d{2}-\d{2} / \d{2}:\d{2}:\d{2} / ', '', content)
                 content = re.sub(r'^\d{2}/\d{2}/\d{4} / \d{2}:\d{2}:\d{2} / ', '', content)
                 new_line_dict["content"] = content
+            
+            # Add temporal and repetition context to system message
+            temporal_context = f"\nCurrent date/time: {date} {time_1}."
+            if repetition_info:
+                hours = repetition_info['hours_ago']
+                if hours < 1:
+                    time_ref = f"{int(hours * 60)} minutes ago"
+                elif hours < 24:
+                    time_ref = f"{int(hours)} hours ago"
+                else:
+                    time_ref = f"{int(hours / 24)} days ago"
+                temporal_context += f" Note: User asked a similar question ({repetition_info['previous_query']}) {time_ref}. You may acknowledge this naturally if appropriate."
+            
+            lore_dict['content'] += temporal_context
             
             prompt = [lore_dict, *cleaned_lines, new_line_dict]
 
@@ -949,17 +980,20 @@ def initialize_and_run():
             
             # Display any remaining buffer content (after filtering emotions)
             if display_buffer:
+                # Final cleanup: remove any remaining gesture patterns with regex
+                # This catches malformed patterns like "(-wave)", "(  )", etc.
+                display_buffer = re.sub(r'\([^)]*(?:wave|thumbs|nod|shak|clap|  )[^)]*\)', '', display_buffer)
+                # Also remove any standard emotion patterns that might have been missed
                 for emotion in emotion_hotkey_map:
                     display_buffer = display_buffer.replace(emotion, "")
-                print(display_buffer, end="", flush=True)
+                if display_buffer.strip():  # Only print if there's actual content
+                    print(display_buffer, end="", flush=True)
             
             print()
 
-            # Save AI response
+            # Save AI response with importance metadata
             new_line = {"role": "assistant", "date": date, "time": time_1, "content": response}
-            with open(r"conversation.jsonl", "a", encoding="UTF-8") as c:
-                c.write("\n" + json.dumps(new_line, ensure_ascii=False))
-            memory.save([json.dumps(new_line)])
+            memory.save_with_metadata(new_line)
 
             # Generate speech audio with streaming GPT-SoVITS
             filename = "out.wav"
@@ -984,7 +1018,7 @@ def initialize_and_run():
                     "text_lang": "en",
                     "ref_audio_path": ref_audio,
                     "prompt_text": prompt_text,
-                    "prompt_lang": "en",
+                    "prompt_lang": os.getenv("GPT_SOVITS_PROMPT_LANG", "ja"),  # Use Japanese to match reference audio
                     "top_k": 5,
                     "top_p": 1.0,
                     "temperature": 1.0,
