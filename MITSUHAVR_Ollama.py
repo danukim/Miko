@@ -360,6 +360,7 @@ def initialize_and_run():
     
     with suppress_stdout_stderr():
         from streaming_inference import GPTSoVITSInference
+        import streaming_tts_helpers
 
     # Initialize shared audio handler for animations
     global animation_handler
@@ -652,8 +653,9 @@ def initialize_and_run():
     def test_entailment(text1, text2):
         """Test semantic entailment between two texts."""
         batch = tokenizer(text1, text2, return_tensors="pt").to(model.device)
-        with torch.no_grad():
-            proba = torch.softmax(model(**batch).logits, -1)
+        with suppress_stdout_stderr():
+            with torch.no_grad():
+                proba = torch.softmax(model(**batch).logits, -1)
         return proba.cpu().numpy()[0, model.config.label2id["ENTAILMENT"]]
 
     def test_equivalence(text1, text2):
@@ -925,6 +927,27 @@ def initialize_and_run():
             response = ""
             display_buffer = ""
 
+            # Initialize concurrent TTS
+            tts_queue = queue.Queue()
+            audio_queue = queue.Queue()
+            collected_fragments = []
+            
+            # Start playback thread immediately (assuming 32000Hz)
+            playback_thread = threading.Thread(
+                target=audio_playback_thread, args=(audio_queue, 32000)
+            )
+            playback_thread.start()
+            
+            # Start TTS worker thread
+            tts_worker_thread = threading.Thread(
+                target=streaming_tts_helpers.tts_worker,
+                args=(tts_queue, audio_queue, MitsuTTS, ref_audio, prompt_text, collected_fragments),
+                daemon=True
+            )
+            tts_worker_thread.start()
+            
+            sentence_buffer = ""
+
             for chunk in ollama.chat(model=os.getenv("LLM_MODEL"), messages=prompt, stream=True):
                 chunk_content = chunk["message"]["content"]
                 
@@ -934,6 +957,16 @@ def initialize_and_run():
                 
                 response += chunk_content
                 display_buffer += chunk_content
+                
+                sentence_buffer += chunk_content
+                
+                # Check for sentence boundary
+                if streaming_tts_helpers.detect_sentence_boundary(sentence_buffer):
+                    # Clean and queue sentence
+                    clean_sent = streaming_tts_helpers.clean_sentence_for_tts(sentence_buffer)
+                    if clean_sent:
+                        tts_queue.put(clean_sent)
+                    sentence_buffer = ""
                 
                 # Process display buffer to filter out emotions
                 while True:
@@ -998,7 +1031,23 @@ def initialize_and_run():
             new_line = {"role": "assistant", "date": date, "time": time_1, "content": response}
             memory.save_with_metadata(new_line)
 
-            # Generate speech audio with streaming GPT-SoVITS
+            # Process remaining buffer
+            if sentence_buffer:
+                clean_sent = streaming_tts_helpers.clean_sentence_for_tts(sentence_buffer)
+                if clean_sent:
+                    tts_queue.put(clean_sent)
+            
+            # Signal TTS worker to stop
+            tts_queue.put(None)
+            
+            # Wait for TTS to finish
+            tts_worker_thread.join()
+            
+            # Signal playback to stop
+            audio_queue.put(None)
+            playback_thread.join()
+
+            # Determine filename based on emotions
             filename = "out.wav"
             for emotion, hotkey in emotion_hotkey_map.items():
                 if emotion in response:
@@ -1007,100 +1056,24 @@ def initialize_and_run():
                     filename = f"{emotion_name}.wav"
                     break
 
-            # Clean response for TTS (after emotion detection)
-            tts_response = response
-            if "M.I.T.S.U.H.A." in tts_response:
-                tts_response = tts_response.replace("M.I.T.S.U.H.A.", "Mitsuha")
-            tts_response = re.sub(r"\(.*?\)", "", tts_response)
-
-            # Text-to-speech generation with streaming GPT-SoVITS
-            try:
-                fragments = []
-                
-                # Generate audio using new streaming inference API
-                with suppress_stdout_stderr():
-                    gen = MitsuTTS.generate(
-                        ref_audio_path=ref_audio,
-                        ref_text=prompt_text,
-                        ref_language="英文",  # English reference
-                        target_text=tts_response,
-                        target_language="英文",  # English target
-                        top_k=5,
-                        top_p=1.0,
-                        temperature=1.0,
-                        speed=1.0,
-                        stream=True  # Enable streaming mode for sentence-by-sentence generation
-                    )
-                
+            # Concatenate fragments for file upload
+            if collected_fragments:
                 try:
-                    with suppress_stdout_stderr():
-                        sr, first_fragment = next(gen)
+                    full_audio = np.concatenate(collected_fragments)
+                    # Normalize audio for saving (convert from raw float32 to [-1, 1] range)
+                    normalized_audio = full_audio / 32768.0
                     
-                    # Convert int16 to float32 for queue compatibility
-                    first_fragment = first_fragment.astype(np.float32)
-                    fragments.append(first_fragment)
+                    # Save to file
+                    sf.write(filename, normalized_audio, 32000)
                     
-                    # Create audio playback queue and start thread with sample rate
-                    audio_queue = queue.Queue()
-                    playback_thread = threading.Thread(
-                        target=audio_playback_thread, args=(audio_queue, sr)
-                    )
-                    playback_thread.start()
-                    
-                    # Queue the first fragment immediately
-                    audio_queue.put(fragments[0])
-                    
-                    # Process remaining fragments
-                    fragment_count = 1
-                    with suppress_stdout_stderr():
-                        for sr, fragment in gen:
-                            fragment_count += 1
-                            # Convert int16 to float32
-                            fragment = fragment.astype(np.float32)
-                            audio_queue.put(fragment)
-                            fragments.append(fragment)
-                                        
-                    # Signal playback thread to finish and wait
-                    audio_queue.put(None)
-                    playback_thread.join()
-                    
-                    # Create complete audio file for upload
-                    if fragments:
-                        complete_audio = np.concatenate(fragments)
-                        data = complete_audio.astype(np.float32) / 32768.0
-                        sf.write(filename, data, sr)
-                    else:
-                        # Generate silent audio as fallback
-                        fs = 22050
-                        duration = 1.0
-                        data = np.zeros(int(fs * duration), dtype=np.float32)
-                        sf.write(filename, data, fs)
-                        
-                except StopIteration:
-                    # No audio fragments generated - silent fallback
-                    fs = 22050
-                    duration = 1.0
-                    data = np.zeros(int(fs * duration), dtype=np.float32)
-                    sf.write(filename, data, fs)
-
-            except (IndexError, RuntimeError) as e:
-                # GPT-SoVITS inference failed - silent fallback
-                fs = 22050
-                duration = 1.0
-                data = np.zeros(int(fs * duration), dtype=np.float32)
-                sf.write(filename, data, fs)
-
-            # Upload audio file (muted for server)
-            try:
-                data_upload, fs_upload = sf.read(filename, dtype="float32")
-                # data_upload = data_upload * 0  # Mute for upload
-                sf.write(filename, data_upload, fs_upload)
-                
-                with open(filename, "rb") as file:
-                    files = {"file": (os.path.basename(filename), file, "audio/wav")}
-                    session.post(upload_url, files=files)
-            except Exception as e:
-                # print(f"Error uploading audio: {e}")
+                    # Upload audio file
+                    with open(filename, "rb") as f:
+                        files = {"file": (filename, f, "audio/wav")}
+                        session.post(upload_url, files=files)
+                except Exception as e:
+                    pass
+            else:
+                # Fallback if no audio generated
                 pass
             
             '''
