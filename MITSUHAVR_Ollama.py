@@ -325,12 +325,29 @@ def strip_ansi_codes(text):
 
 def initialize_and_run():
     """Initialize and run the M.I.T.S.U.H.A. AI assistant."""
+    # Suppress transformers progress bars
+    os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+    os.environ["TRANSFORMERS_NO_ADVISORY_WARNINGS"] = "1"
     import warnings
     warnings.filterwarnings("ignore", category=UserWarning)
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
     # Load all modules with kawaii progress bar! ✨
     kawaii_import_modules()
+
+    # Silence all future tqdm progress bars (e.g. from vectordb, GPT-SoVITS)
+    try:
+        import tqdm
+        # Monkey-patch tqdm class to force disable=True by default
+        # This affects all libraries that use tqdm (including pre-imported ones)
+        if hasattr(tqdm, 'tqdm'):
+            original_tqdm_init = tqdm.tqdm.__init__
+            def new_tqdm_init(self, *args, **kwargs):
+                kwargs['disable'] = True
+                original_tqdm_init(self, *args, **kwargs)
+            tqdm.tqdm.__init__ = new_tqdm_init
+    except (ImportError, AttributeError):
+        pass
 
     # Import the modules into local scope for this function
     global sr, sd, sf, torch, AutoTokenizer, AutoModelForSequenceClassification, TuyaOpenAPI
@@ -552,10 +569,6 @@ def initialize_and_run():
     # Initialize GPT-SoVITS for voice synthesis
     print(kawaii_gradient_text("🎵 Preparing magical voice synthesis... ", "#FF69B4", "#FF1493"), end="", flush=True)
     try:
-        # Model paths for newer v2ProPlus models
-        gpt_model_path = r"C:\Users\danu0\Downloads\Artificial-Intelligence\GPT-SoVITS-v2pro-20250604\GPT_SoVITS\pretrained_models\s1v3.ckpt"
-        sovits_model_path = r"C:\Users\danu0\Downloads\Artificial-Intelligence\GPT-SoVITS-v2pro-20250604\GPT_SoVITS\pretrained_models\v2Pro\s2Gv2ProPlus.pth"
-        
         # Reference audio configuration from environment
         ref_audio = os.getenv("GPT_SOVITS_REF_AUDIO")
         prompt_text = os.getenv("GPT_SOVITS_PROMPT_TEXT")
@@ -563,8 +576,8 @@ def initialize_and_run():
         # Initialize the streaming inference engine with suppressed output
         with suppress_stdout_stderr():
             MitsuTTS = GPTSoVITSInference(
-                gpt_model_path=gpt_model_path,
-                sovits_model_path=sovits_model_path
+                gpt_model_path=os.getenv("GPT_SOVITS_T2S_CKPT"),
+                sovits_model_path=os.getenv("GPT_SOVITS_VITS_PTH")
             )
         
         print(kawaii_gradient_text("✨ Voice ready! ✨", "#90EE90", "#32CD32"))
@@ -692,8 +705,9 @@ def initialize_and_run():
             try:
                 if use_typing_mode:
                     # Text input mode
-                    print(kawaii_gradient_text("\nType your message to Mitsuha~ (or 'quit' to exit): ", "#FFB6C1", "#DDA0DD"))
-                    text = input(kawaii_gradient_text("You: ", "#00CED1", "#1E90FF")).strip()
+                    print(kawaii_gradient_text("\nType your message to Mitsuha~ (or 'quit' to exit):", "#FFB6C1", "#DDA0DD"))
+                    print(kawaii_gradient_text("You: ", "#00CED1", "#1E90FF"), end="", flush=True)
+                    text = input().strip()
 
                     if text.lower() in ["quit", "exit", "bye", "goodbye"]:
                         break
@@ -758,13 +772,14 @@ def initialize_and_run():
                 "content": text,
             }
 
-            # Display user input with colored prefix
-            print(kawaii_gradient_text("You: ", "#00CED1", "#1E90FF") + text)
+            # User input already displayed during input prompt (line 695)
+            # No need to print again
 
             clear_input_buffer()
 
             # Save user message with importance metadata
-            memory.save_with_metadata(new_line)
+            with suppress_stdout_stderr():
+                memory.save_with_metadata(new_line)
 
             # Smart home device control
             devices = [os.getenv("DEVICE_1"), os.getenv("DEVICE_2")]
@@ -803,10 +818,11 @@ def initialize_and_run():
             current_time = datetime.now()
             
             # Check for repetitive queries
-            repetition_info = memory.detect_repetition(query, current_time, time_window_hours=24)
-            
-            # Get smart memory results (combines similarity + temporal + importance)
-            smart_results = memory.search_smart(query, current_time, top_n=5)
+            with suppress_stdout_stderr():
+                repetition_info = memory.detect_repetition(query, current_time, time_window_hours=24)
+                
+                # Get smart memory results (combines similarity + temporal + importance)
+                smart_results = memory.search_smart(query, current_time, top_n=5)
             
             # Extract messages for context (backward compatible with old code)
             if len(smart_results) >= 2:
@@ -951,9 +967,8 @@ def initialize_and_run():
             for chunk in ollama.chat(model=os.getenv("LLM_MODEL"), messages=prompt, stream=True):
                 chunk_content = chunk["message"]["content"]
                 
-                # Check if chunk content is just a newline - if so, stop generation
-                if chunk_content == "\n":
-                    break
+                # Don't stop on newlines - let the model finish naturally
+                # Only stop if done flag is set (ollama will handle this automatically)
                 
                 response += chunk_content
                 display_buffer += chunk_content
@@ -1029,7 +1044,8 @@ def initialize_and_run():
 
             # Save AI response with importance metadata
             new_line = {"role": "assistant", "date": date, "time": time_1, "content": response}
-            memory.save_with_metadata(new_line)
+            with suppress_stdout_stderr():
+                memory.save_with_metadata(new_line)
 
             # Process remaining buffer
             if sentence_buffer:
