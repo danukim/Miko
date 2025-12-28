@@ -513,9 +513,24 @@ def initialize_and_run():
 
         def preprocess_text(text):
             """Clean and format transcribed text."""
+            # Filter known Whisper hallucinations
+            hallucinations = [
+                "Conversation ends.",
+                "Subtitle by", 
+                "Amara.org",
+                "Thanks for watching",
+                "MBC",
+                "SBS"
+            ]
+            
+            for h in hallucinations:
+                if h.lower() in text.lower():
+                    return ""
+
             text = text.lstrip()
             if text.startswith("..."):
                 text = text[3:]
+            text = text.strip("'\"")  # Strip surrounding quotes
             text = text.lstrip()
             if text:
                 text = text[0].upper() + text[1:]
@@ -529,7 +544,7 @@ def initialize_and_run():
             "Examples:\n"
             "- Complete: 'Hello Mitsuha, how are you today?'\n"
             "- Incomplete: 'I was wondering if you could help me with...'\n"
-            "- Conversation: 'Mitsuha, can you tell me about...'"
+            "- Query: 'Mitsuha, can you tell me about...'"
         )
 
         # Voice activity detection timing
@@ -728,7 +743,9 @@ def initialize_and_run():
                             nonlocal trans
                             text = preprocess_text(text)
                             trans = text
-                            print()  # Add newline after completion
+                            # Clear line and print user text
+                            print(f"\r{' ' * 50}\r", end="", flush=True)
+                            print(kawaii_gradient_text("You: ", "#00CED1", "#1E90FF") + text)
 
                         recorder.text(process_complete_text)
                     else:
@@ -738,7 +755,9 @@ def initialize_and_run():
                             nonlocal trans
                             text = preprocess_text(text)
                             trans = text
-                            print()  # Add newline after completion
+                            # Clear line and print user text
+                            print(f"\r{' ' * 50}\r", end="", flush=True)
+                            print(kawaii_gradient_text("You: ", "#00CED1", "#1E90FF") + text)
 
                         recorder.text(process_complete_text)
 
@@ -980,7 +999,9 @@ def initialize_and_run():
                     # Clean and queue sentence
                     clean_sent = streaming_tts_helpers.clean_sentence_for_tts(sentence_buffer)
                     if clean_sent:
-                        tts_queue.put(clean_sent)
+                        # Strip emojis for TTS only
+                        tts_sent = re.sub(r'[\U00010000-\U0010ffff]', '', clean_sent) # Remove emojis
+                        tts_queue.put(tts_sent)
                     sentence_buffer = ""
                 
                 # Process display buffer to filter out emotions
