@@ -13,9 +13,8 @@
 !conversation.jsonl
 !LICENSE
 !README.md
-
-!mitsuha/
-
-!mitsuha/**
-
-!main.py
+!test_refactor_clean.py
+!start.bat
+!setup.bat
+!OneReality.bat
+!STREAMING_INTEGRATION_GUIDE.md

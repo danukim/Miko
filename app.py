@@ -1,12 +1,9 @@
-from http.server import SimpleHTTPRequestHandler
-from http.server import HTTPServer
-import os
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import threading
 import cgi
 from urllib.parse import parse_qs
 import json
 import base64
-from http.server import ThreadingHTTPServer
 
 class FileUploadHandler(SimpleHTTPRequestHandler):
     latest_message = ""
@@ -77,8 +74,20 @@ class FileUploadHandler(SimpleHTTPRequestHandler):
                     self.send_response(200)
                     self.end_headers()
                     self.wfile.write(b'Animation command received')
+                elif data.get('type') == 'face_position':
+                    # Handle face tracking data from face_tracker.py
+                    motor_position = data.get('motor_position', 0.0)
+                    x = data.get('x', 0.5)
+                    y = data.get('y', 0.5)
+                    servo_angle = data.get('servo_angle', 120.0)
+                    detected = data.get('detected', False)
+                    FileUploadHandler.broadcast_face_position(motor_position, x, y, servo_angle, detected)
+                    
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(b'Face position received')
                 else:
-                    print(f"Unknown audio message type: {data.get('type')}")  # Debug output
+                    print(f"Unknown message type: {data.get('type')}")  # Debug output
                     self.send_response(400)
                     self.end_headers()
                     self.wfile.write(b'Unknown message type')
@@ -210,6 +219,19 @@ class FileUploadHandler(SimpleHTTPRequestHandler):
             'audio_data': animation_name,  # Using audio_data field for animation name
             'sample_rate': 0,  # Not used for animations
             'timestamp': 0     # Not used for animations
+        }
+        cls._broadcast_message(message)
+    
+    @classmethod
+    def broadcast_face_position(cls, motor_position, x, y, servo_angle, detected):
+        """Send face position to all connected Unity clients for camera orbit"""
+        message = {
+            'type': 'face_position',
+            'motor_position': motor_position,
+            'x': x,
+            'y': y,
+            'servo_angle': servo_angle,
+            'detected': detected
         }
         cls._broadcast_message(message)
     

@@ -81,6 +81,7 @@ future==1.0.0
 g2p-en==2.1.0
 g2pk2==0.0.3
 gast==0.4.0
+gdown
 google-api-core==2.8.2
 google-auth==2.40.3
 google-auth-oauthlib==0.4.6
@@ -196,6 +197,7 @@ protobuf==3.20.0
 psutil==7.0.0
 pvporcupine==1.9.5
 py3langid==0.2.2
+py7zr
 pyannote.audio==3.3.2
 pyannote.core==5.0.0
 pyannote.database==5.1.3

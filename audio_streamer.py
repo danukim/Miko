@@ -5,11 +5,9 @@ Handles real-time audio streaming to Unity desktop avatar
 
 import requests
 import base64
-import json
 import numpy as np
 import threading
 import time
-from typing import Optional, Callable
 import queue
 
 class AudioStreamer:
@@ -225,48 +223,6 @@ def create_mitsuha_audio_handler(server_url: str = "http://localhost:8000",
     player = DualAudioPlayer(streamer, local_volume)
     
     return player
-
-# Example usage in MITSUHA's audio_playback_thread function
-def example_mitsuha_integration():
-    """
-    Example of how to integrate this with MITSUHA's existing audio system
-    """
-    
-    # Replace the existing audio_playback_thread function with this:
-    def audio_playback_thread_with_streaming(audio_queue: queue.Queue, sample_rate: int):
-        """
-        Enhanced audio playback thread that streams to Unity while playing locally
-        """
-        # Create dual audio player
-        dual_player = create_mitsuha_audio_handler(
-            server_url="http://localhost:8000",
-            local_volume=0.0  # Muted for timing only
-        )
-        
-        dual_player.start_playback(sample_rate)
-        
-        try:
-            while True:
-                try:
-                    # Get audio fragment from TTS generation
-                    audio_fragment = audio_queue.get(timeout=1.0)
-                    
-                    if audio_fragment is None:  # Shutdown signal
-                        break
-                    
-                    # Play locally (muted) and stream to Unity
-                    dual_player.add_audio_chunk(audio_fragment)
-                    
-                except queue.Empty:
-                    continue
-                except Exception as e:
-                    print(f"❌ Audio playback error: {e}")
-                    break
-                    
-        finally:
-            dual_player.stop_playback()
-    
-    return audio_playback_thread_with_streaming
 
 if __name__ == "__main__":
     # Test the audio streamer

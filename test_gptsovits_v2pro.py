@@ -36,7 +36,7 @@ def test_v2pro_inference():
     ref_audio = os.getenv("GPT_SOVITS_REF_AUDIO")
     prompt_text = os.getenv("GPT_SOVITS_PROMPT_TEXT")
     
-    print(f"\nConfiguration:")
+    print("\nConfiguration:")
     print(f"  Config: {config_path}")
     print(f"  T2S Model: {t2s_ckpt}")
     print(f"  VITS Model: {vits_ckpt}")
@@ -190,7 +190,7 @@ def test_non_streaming():
         
         # Save
         sf.write("test_v2pro_nonstreaming.wav", audio_data, sr)
-        print(f"✓ Saved to: test_v2pro_nonstreaming.wav")
+        print("✓ Saved to: test_v2pro_nonstreaming.wav")
         
         return True
         

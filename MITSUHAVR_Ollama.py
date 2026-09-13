@@ -1,3 +1,7 @@
+import sys
+import os
+import time
+import re
 import contextlib
 from audio_streamer import create_mitsuha_audio_handler
 
@@ -14,11 +18,6 @@ def suppress_stdout_stderr():
         finally:
             sys.stdout = old_stdout
             sys.stderr = old_stderr
-
-# Basic imports needed for the kawaii loader
-import sys
-import os
-import time
 
 # Flag to track if imports have been done
 _imports_initialized = False
@@ -183,7 +182,7 @@ def kawaii_import_modules():
                 
                 time.sleep(0.05)  # Kawaii delay for visual effect ♡
                 
-            except ImportError as e:
+            except ImportError:
                 pbar.set_postfix_str(kawaii_gradient_text(f"❌ Failed: {description}", "#FF0000", "#8B0000"))
                 time.sleep(0.1)
             
@@ -370,7 +369,7 @@ def initialize_and_run():
 
     # Import streaming inference module for TTS
     # Add required paths for GPT-SoVITS dependencies
-    gpt_sovits_base = r"C:\Users\danu0\Downloads\OneReality\GPT-SoVITS-v2pro-20250604"
+    gpt_sovits_base = os.path.join(os.path.dirname(os.path.abspath(__file__)), "GPT-SoVITS-v2pro-20250604")
     sys.path.insert(0, gpt_sovits_base)
     sys.path.insert(0, os.path.join(gpt_sovits_base, "GPT_SoVITS"))
     sys.path.insert(0, os.path.join(gpt_sovits_base, "GPT_SoVITS", "eres2net"))
@@ -391,7 +390,7 @@ def initialize_and_run():
         # print(f"🎵 Audio playback thread starting with sample rate: {sample_rate}Hz")
         
         # Create dual audio player with correct server URL
-        server_ip = os.getenv("IP_ADDRESS", "localhost")
+        server_ip = os.getenv("IP_ADDRESS")
         # print(f"🎵 Using server IP: {server_ip}")
         dual_player = create_mitsuha_audio_handler(
             server_url=f"http://{server_ip}:8000",
@@ -404,7 +403,6 @@ def initialize_and_run():
         dual_player.start_playback(sample_rate)
         
         try:
-            fragment_num = 0
             while True:
                 try:
                     # Get audio fragment from TTS generation queue
@@ -422,8 +420,6 @@ def initialize_and_run():
                     # Stream to Unity and play locally (muted) for timing
                     dual_player.add_audio_chunk(normalized_fragment)
                     
-                    fragment_num += 1
-                    
                 except queue.Empty:
                     continue
                 except Exception as e:
@@ -436,8 +432,6 @@ def initialize_and_run():
 
     # Start server application
     os.system('start cmd /k "python app.py"')
-    # os.startfile(r"server\dist\app\app.exe")
-    upload_url = "http://" + os.getenv("IP_ADDRESS") + ":8000/uploaded_files/"
     
         # Display startup banner
     START_COLOR = "#00FFFF"  # Aqua/Cyan
@@ -456,7 +450,7 @@ def initialize_and_run():
 
     print(ascii_art)
 
-    text = ("Redefining Reality\n" f"[PROJECT M.I.T.S.U.H.A. CLOSED BETA]\n" + gradient_text("DogeLord", START_COLOR, END_COLOR))
+    text = ("Redefining Reality\n" "[PROJECT M.I.T.S.U.H.A. CLOSED BETA]\n" + gradient_text("DogeLord", START_COLOR, END_COLOR))
 
     # Center text based on ASCII art width
     ascii_art_width = max(len(line) for line in ascii_art.splitlines())
@@ -542,9 +536,9 @@ def initialize_and_run():
             "Add periods only for complete sentences. "
             "Use ellipsis (...) for unfinished thoughts or unclear endings. "
             "Examples:\n"
-            "- Complete: 'Hello Mitsuha, how are you today?'\n"
-            "- Incomplete: 'I was wondering if you could help me with...'\n"
-            "- Query: 'Mitsuha, can you tell me about...'"
+            "'Hello Mitsuha, how are you today?'\n"
+            "'I was wondering if you could help me with...'\n"
+            "'Mitsuha, can you tell me about...'"
         )
 
         # Voice activity detection timing
@@ -590,9 +584,15 @@ def initialize_and_run():
         
         # Initialize the streaming inference engine with suppressed output
         with suppress_stdout_stderr():
+            # Calculate absolute paths for helper models to ensure portability
+            cnhubert_base_path = os.path.join(gpt_sovits_base, "GPT_SoVITS", "pretrained_models", "chinese-hubert-base")
+            bert_path = os.path.join(gpt_sovits_base, "GPT_SoVITS", "pretrained_models", "chinese-roberta-wwm-ext-large")
+            
             MitsuTTS = GPTSoVITSInference(
                 gpt_model_path=os.getenv("GPT_SOVITS_T2S_CKPT"),
-                sovits_model_path=os.getenv("GPT_SOVITS_VITS_PTH")
+                sovits_model_path=os.getenv("GPT_SOVITS_VITS_PTH"),
+                cnhubert_path=cnhubert_base_path,
+                bert_path=bert_path
             )
         
         print(kawaii_gradient_text("✨ Voice ready! ✨", "#90EE90", "#32CD32"))
@@ -608,10 +608,6 @@ def initialize_and_run():
         ACCESS_ID = os.getenv("TUYA_ID")
         ACCESS_KEY = os.getenv("TUYA_SECRET")
         API_ENDPOINT = os.getenv("TUYA_ENDPOINT")
-
-    # Initialize legacy speech recognition (unused but kept for compatibility)
-    r = sr.Recognizer()
-    mic = sr.Microphone()
 
     # Initialize NLI model for device control
     print(kawaii_gradient_text("🤖 Loading transformers... ", "#00CED1", "#1E90FF"), end="", flush=True)
@@ -650,25 +646,6 @@ def initialize_and_run():
                 p_key_pressed = False
         except AttributeError:
             pass
-
-    # Message monitoring thread
-    message = None
-
-    def check_for_messages():
-        """Monitor for external messages from server."""
-        nonlocal message
-        message = ""
-        while True:
-            try:
-                with requests.Session() as session:
-                    response = session.get(upload_url)
-                    if response.status_code == 200:
-                        data = json.loads(response.text)
-                        if message != data.get("message"):
-                            message = data.get("message")
-            except Exception:
-                pass
-            time.sleep(0.5)
 
     def check_goodbye(transcript):
         """Check if user wants to end the conversation."""
@@ -713,8 +690,7 @@ def initialize_and_run():
 
     async def heart():
         """Main conversation loop."""
-        nonlocal run_count, message
-        session = requests.Session()
+        nonlocal run_count
 
         while True:
             try:
@@ -733,32 +709,22 @@ def initialize_and_run():
                     # Voice input mode
                     trans = ""
 
+                    def process_complete_text(text):
+                        nonlocal trans
+                        text = preprocess_text(text)
+                        trans = text
+                        # Clear line and print user text
+                        print(f"\r{' ' * 50}\r", end="", flush=True)
+                        print(kawaii_gradient_text("You: ", "#00CED1", "#1E90FF") + text)
+
                     if push_to_talk:
                         print(kawaii_gradient_text("\nPress 'p' to speak with Mitsuha~", "#FF69B4", "#FF1493"))
                         while not p_key_pressed:
                             await asyncio.sleep(0.1)
                         print(kawaii_gradient_text("Listening... ", "#FFD700", "#FFA500"), end="", flush=True)
-
-                        def process_complete_text(text):
-                            nonlocal trans
-                            text = preprocess_text(text)
-                            trans = text
-                            # Clear line and print user text
-                            print(f"\r{' ' * 50}\r", end="", flush=True)
-                            print(kawaii_gradient_text("You: ", "#00CED1", "#1E90FF") + text)
-
                         recorder.text(process_complete_text)
                     else:
                         print(kawaii_gradient_text("🎧 Always listening for you~ ", "#DDA0DD", "#9370DB"), end="", flush=True)
-
-                        def process_complete_text(text):
-                            nonlocal trans
-                            text = preprocess_text(text)
-                            trans = text
-                            # Clear line and print user text
-                            print(f"\r{' ' * 50}\r", end="", flush=True)
-                            print(kawaii_gradient_text("You: ", "#00CED1", "#1E90FF") + text)
-
                         recorder.text(process_complete_text)
 
                     if not trans or len(trans.strip()) == 0:
@@ -770,14 +736,8 @@ def initialize_and_run():
                 date = now.strftime("%m/%d/%Y")
                 time_2 = now.strftime("%H:%M:%S")
 
-            except Exception as e:
-                if not use_typing_mode:
-                    # print(f"Error during audio capture: {e}")
-                    # import traceback
-                    # traceback.print_exc()
-                    continue
-                else:
-                    continue
+            except Exception:
+                continue
 
             text = trans
             # Remove "Mitsuha- " prefix if present
@@ -1022,7 +982,7 @@ def initialize_and_run():
                                 if animation_handler:
                                     try:
                                         animation_handler.send_animation(animation_name)
-                                    except Exception as e:
+                                    except Exception:
                                         pass
                                         # print(f"❌ Failed to send animation: {e}")
                                 else:
@@ -1086,7 +1046,7 @@ def initialize_and_run():
 
             # Determine filename based on emotions
             filename = "out.wav"
-            for emotion, hotkey in emotion_hotkey_map.items():
+            for emotion in emotion_hotkey_map:
                 if emotion in response:
                     # Extract emotion name from parentheses: "(wave)" -> "wave"
                     emotion_name = emotion.strip("()")
@@ -1102,12 +1062,7 @@ def initialize_and_run():
                     
                     # Save to file
                     sf.write(filename, normalized_audio, 32000)
-                    
-                    # Upload audio file
-                    with open(filename, "rb") as f:
-                        files = {"file": (filename, f, "audio/wav")}
-                        session.post(upload_url, files=files)
-                except Exception as e:
+                except Exception:
                     pass
             else:
                 # Fallback if no audio generated
@@ -1130,10 +1085,6 @@ def initialize_and_run():
     try:
         os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-        # Start message monitoring thread
-        t1 = threading.Thread(target=check_for_messages, daemon=True)
-        t1.start()
-
         # Run main conversation loop
         asyncio.run(heart())
 
@@ -1147,23 +1098,17 @@ def initialize_and_run():
         print(kawaii_gradient_text("✨ Shutting down gracefully... ✨", "#FFB6C1", "#DDA0DD"))
 
         # Cleanup threads and resources
-        try:
-            if 't1' in locals():
-                t1.join(timeout=1.0)
-        except:
-            pass
-
         if not use_typing_mode and recorder is not None:
             try:
                 recorder.shutdown()
                 # print("🎤 Recorder shut down successfully.")
-            except:
+            except Exception:
                 pass
 
         if not use_typing_mode and 'listener' in locals():
             try:
                 listener.stop()
-            except:
+            except Exception:
                 pass
 
         print(kawaii_gradient_text("💫 Application terminated. See you next time! 💫", "#FF1493", "#00CED1"))

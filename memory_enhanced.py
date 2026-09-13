@@ -10,7 +10,6 @@ import json
 import re
 from datetime import datetime
 from typing import List, Dict, Any, Tuple, Optional
-import numpy as np
 
 
 class ImportanceScorer:
