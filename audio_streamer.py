@@ -1,5 +1,5 @@
 """
-Audio streaming module for MITSUHA AI Assistant
+Audio streaming module for Miko AI Assistant
 Handles real-time audio streaming to Unity desktop avatar
 """
 
@@ -206,11 +206,11 @@ class DualAudioPlayer:
         except Exception as e:
             print(f"❌ Failed to initialize local audio playback: {e}")
 
-# Example integration function for MITSUHA
-def create_mitsuha_audio_handler(server_url: str = "http://localhost:8000", 
-                                local_volume: float = 0.0):
+# Integration function for Miko
+def create_miko_audio_handler(server_url: str = "http://localhost:8000", 
+                              local_volume: float = 0.0):
     """
-    Create an audio handler for MITSUHA that streams to Unity
+    Create an audio handler for Miko that streams to Unity
     
     Args:
         server_url: URL of the app.py server
@@ -223,6 +223,9 @@ def create_mitsuha_audio_handler(server_url: str = "http://localhost:8000",
     player = DualAudioPlayer(streamer, local_volume)
     
     return player
+
+# Backwards compatibility alias
+create_mitsuha_audio_handler = create_miko_audio_handler
 
 if __name__ == "__main__":
     # Test the audio streamer

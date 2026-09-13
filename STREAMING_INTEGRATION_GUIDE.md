@@ -1,6 +1,6 @@
-# MITSUHA Audio Streaming Integration Guide
+# Miko Audio Streaming Integration Guide
 
-This guide shows how to integrate real-time audio streaming with your MITSUHA AI assistant and Unity desktop avatar.
+This guide shows how to integrate real-time audio streaming with your Miko AI assistant and Unity desktop avatar.
 
 ## Overview
 
@@ -12,20 +12,20 @@ The new system allows you to:
 
 ## Integration Steps
 
-### 1. Update Your MITSUHA Audio Playback Function
+### 1. Update Your Miko Audio Playback Function
 
 Replace your existing `audio_playback_thread` function in `MITSUHAVR_Ollama.py`:
 
 ```python
 # Add this import at the top of your file
-from audio_streamer import create_mitsuha_audio_handler
+from audio_streamer import create_miko_audio_handler
 
 def audio_playback_thread(audio_queue: queue.Queue, sample_rate: int):
     """
     Enhanced audio playback thread that streams to Unity while playing locally for timing
     """
     # Create dual audio player (local muted + Unity streaming)
-    dual_player = create_mitsuha_audio_handler(
+    dual_player = create_miko_audio_handler(
         server_url="http://localhost:8000",
         local_volume=0.0  # Muted for timing only - Unity handles actual playback
     )
@@ -60,7 +60,7 @@ def audio_playback_thread(audio_queue: queue.Queue, sample_rate: int):
 
 ### 2. Unity Setup
 
-1. **Add the MitsuhaAudioReceiver script** to your avatar GameObject
+1. **Add the MikoAudioReceiver script** to your avatar GameObject
 2. **Configure the AudioSource** component (it will be created automatically if not present)
 3. **Set up your lip sync component** by extending the `AudioLipSync` class
 4. **Configure the server URL** in the inspector (default: http://localhost:8000)
@@ -76,13 +76,13 @@ public class YourExistingLipSync : AudioLipSync
     
     public override void OnSpeechStart()
     {
-        // Called when MITSUHA starts speaking
+        // Called when Miko starts speaking
         // Initialize your lip sync system
     }
     
     public override void OnSpeechEnd()
     {
-        // Called when MITSUHA stops speaking
+        // Called when Miko stops speaking
         // Reset mouth to closed position
     }
     
@@ -120,9 +120,9 @@ public class YourExistingLipSync : AudioLipSync
 ## Testing
 
 1. **Start the server**: Run `python app.py`
-2. **Start MITSUHA**: Run your main MITSUHA script
-3. **Start Unity**: Make sure the avatar scene is running with MitsuhaAudioReceiver
-4. **Test conversation**: Speak to MITSUHA and observe real-time lip sync
+2. **Start Miko**: Run your main Miko script
+3. **Start Unity**: Make sure the avatar scene is running with MikoAudioReceiver
+4. **Test conversation**: Speak to Miko and observe real-time lip sync
 
 ## Troubleshooting
 
@@ -169,7 +169,7 @@ The server supports multiple Unity clients simultaneously. Each connected avatar
 
 ## Integration with Existing Code
 
-Your current MITSUHA setup should work with minimal changes:
+Your current Miko setup should work with minimal changes:
 
 1. ✅ Keep your existing TTS pipeline (GPT-SoVITS)
 2. ✅ Keep your existing conversation logic

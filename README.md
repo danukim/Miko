@@ -1,4 +1,4 @@
-# ✨ MITSUHA — OneReality Desktop AI Companion ✨
+# ✨ MIKO — OneReality Desktop AI Companion ✨
 
 <div align="center">
 
@@ -17,7 +17,7 @@
 
 ## 🎀 Overview
 
-**Mitsuha** is a real-time, embodied AI companion designed to live on your desktop. Combining local Large Language Models (via Ollama), cutting-edge high-fidelity voice synthesis (GPT-SoVITS v2pro), an animated 3D Unity desktop avatar, persistent temporal memory, smart-home IoT control, and physical turntable hardware (**OASIS**), Mitsuha provides an immersive personal companion experience.
+**Miko** is a real-time, embodied AI companion designed to live on your desktop. Combining local Large Language Models (via Ollama), cutting-edge high-fidelity voice synthesis (GPT-SoVITS v2pro), an animated 3D Unity desktop avatar, persistent temporal memory, smart-home IoT control, and physical turntable hardware (**OASIS**), Miko provides an immersive personal companion experience.
 
 ---
 
@@ -78,7 +78,7 @@ OneReality/
 ├── 👗 3D Avatar & Unity Desktop
 │   ├── MITSUHA_DESKTOP/            # Standalone Unity desktop avatar application
 │   ├── MITSUHA_DESKTOP_OASIS/      # Unity desktop companion build with OASIS tracking
-│   ├── MitsuhaAudioReceiver.cs     # C# Unity component for receiving audio stream & driving lip-sync
+│   ├── MikoAudioReceiver.cs        # C# Unity component for receiving audio stream & driving lip-sync
 │   └── KAWAII ANIMATIONS 100 v1.9.0/ # Asset pack containing expressive avatar animations
 │
 ├── 🤖 Hardware & Physical Companion
@@ -149,7 +149,7 @@ TUYA_ACCESS_ID=your_id_here
 TUYA_ACCESS_KEY=your_key_here
 ```
 
-### 4. Launch Mitsuha
+### 4. Launch Miko
 To launch the full stack (Ollama service + Unity Avatar + Python Companion):
 ```cmd
 start.bat
@@ -166,7 +166,7 @@ venv\Scripts\python.exe MITSUHAVR_Ollama.py
 When running `MITSUHAVR_Ollama.py`, you can choose between two interaction styles:
 
 1. **Voice Mode (Default)**:
-   - **Push-to-Talk**: Press `p` to speak to Mitsuha. The high-accuracy STT engine listens, detects speech boundaries, and responds.
+   - **Push-to-Talk**: Press `p` to speak to Miko. The high-accuracy STT engine listens, detects speech boundaries, and responds.
    - **Continuous Listening**: Enable always-on microphone detection for hands-free conversation.
 2. **Text / Typing Mode**:
    - Type your messages directly into the Kawaii CLI console for quick, silent interactions.
@@ -176,7 +176,7 @@ When running `MITSUHAVR_Ollama.py`, you can choose between two interaction style
 ## 🧩 Subsystem Details
 
 ### 🧠 Enhanced Memory Core (`memory_enhanced.py`)
-Mitsuha features a human-like memory system that goes beyond simple context windows:
+Miko features a human-like memory system that goes beyond simple context windows:
 - **Temporal Decay**: Memories naturally decay in salience over time using an exponential half-life formula.
 - **Importance Scoring**: Important memories (declarations of love, user preferences, names, facts) are scored higher and persist longer.
 - **Repetition Suppression**: Prevents the assistant from looping or repeating recent statements.
@@ -184,7 +184,7 @@ Mitsuha features a human-like memory system that goes beyond simple context wind
 
 ### 🔊 Low-Latency Audio Streaming (`audio_streamer.py` & `app.py`)
 - Real-time sentence chunking allows TTS generation and audio streaming to begin before the LLM finishes generating the full response.
-- Streams raw 32kHz/24kHz PCM audio chunks over HTTP/WebSocket directly to Unity's `MitsuhaAudioReceiver.cs` for instantaneous playback and viseme/lip-sync generation.
+- Streams raw 32kHz/24kHz PCM audio chunks over HTTP/WebSocket directly to Unity's `MikoAudioReceiver.cs` for instantaneous playback and viseme/lip-sync generation.
 
 ### 💃 Unity Desktop Avatar (`MITSUHA_DESKTOP/`)
 - Borderless transparent desktop overlay window featuring an anime avatar.

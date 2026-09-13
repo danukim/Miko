@@ -3,7 +3,7 @@ import os
 import time
 import re
 import contextlib
-from audio_streamer import create_mitsuha_audio_handler
+from audio_streamer import create_miko_audio_handler
 
 @contextlib.contextmanager
 def suppress_stdout_stderr():
@@ -85,7 +85,7 @@ def kawaii_import_modules():
         ("re", "🔍 Regex patterns")
     ]
 
-    print(kawaii_gradient_text("✨ Loading Mitsuha's magical components... ✨", "#FF69B4", "#00CED1"))
+    print(kawaii_gradient_text("✨ Loading Miko's magical components... ✨", "#FF69B4", "#00CED1"))
     print()
 
     # Create kawaii progress bar
@@ -392,7 +392,7 @@ def initialize_and_run():
         # Create dual audio player with correct server URL
         server_ip = os.getenv("IP_ADDRESS")
         # print(f"🎵 Using server IP: {server_ip}")
-        dual_player = create_mitsuha_audio_handler(
+        dual_player = create_miko_audio_handler(
             server_url=f"http://{server_ip}:8000",
             local_volume=0.0  # Muted for timing only - Unity handles actual playback
         )
@@ -532,13 +532,13 @@ def initialize_and_run():
 
         # Whisper model prompt for better conversation context
         initial_prompt = (
-            "You are speaking with Mitsuha, an AI assistant. "
+            "You are speaking with Miko, an AI assistant. "
             "Add periods only for complete sentences. "
             "Use ellipsis (...) for unfinished thoughts or unclear endings. "
             "Examples:\n"
-            "'Hello Mitsuha, how are you today?'\n"
+            "'Hello Miko, how are you today?'\n"
             "'I was wondering if you could help me with...'\n"
-            "'Mitsuha, can you tell me about...'"
+            "'Miko, can you tell me about...'"
         )
 
         # Voice activity detection timing
@@ -696,7 +696,7 @@ def initialize_and_run():
             try:
                 if use_typing_mode:
                     # Text input mode
-                    print(kawaii_gradient_text("\nType your message to Mitsuha~ (or 'quit' to exit):", "#FFB6C1", "#DDA0DD"))
+                    print(kawaii_gradient_text("\nType your message to Miko~ (or 'quit' to exit):", "#FFB6C1", "#DDA0DD"))
                     print(kawaii_gradient_text("You: ", "#00CED1", "#1E90FF"), end="", flush=True)
                     text = input().strip()
 
@@ -718,7 +718,7 @@ def initialize_and_run():
                         print(kawaii_gradient_text("You: ", "#00CED1", "#1E90FF") + text)
 
                     if push_to_talk:
-                        print(kawaii_gradient_text("\nPress 'p' to speak with Mitsuha~", "#FF69B4", "#FF1493"))
+                        print(kawaii_gradient_text("\nPress 'p' to speak with Miko~", "#FF69B4", "#FF1493"))
                         while not p_key_pressed:
                             await asyncio.sleep(0.1)
                         print(kawaii_gradient_text("Listening... ", "#FFD700", "#FFA500"), end="", flush=True)
@@ -740,9 +740,11 @@ def initialize_and_run():
                 continue
 
             text = trans
-            # Remove "Mitsuha- " prefix if present
-            if text.startswith("Mitsuha- "):
-                text = text[9:]  # Remove first 9 characters ("Mitsuha- ")
+            # Remove "Miko- " or legacy "Mitsuha- " prefix if present
+            if text.startswith("Miko- "):
+                text = text[6:]  # Remove first 6 characters ("Miko- ")
+            elif text.startswith("Mitsuha- "):
+                text = text[9:]  # Remove legacy "Mitsuha- " prefix
             
             new_line = {
                 "role": "user",
@@ -918,7 +920,7 @@ def initialize_and_run():
             }
 
             # Generate AI response
-            print(kawaii_gradient_text("Mitsuha: ", "#FF69B4", "#DDA0DD"), end="")
+            print(kawaii_gradient_text("Miko: ", "#FF69B4", "#DDA0DD"), end="")
             response = ""
             display_buffer = ""
 
@@ -1089,7 +1091,7 @@ def initialize_and_run():
         asyncio.run(heart())
 
     except KeyboardInterrupt:
-        print(kawaii_gradient_text("\n🌸 Mitsuha is going to sleep now... Goodbye! 🌸", "#FF69B4", "#DDA0DD"))
+        print(kawaii_gradient_text("\n🌸 Miko is going to sleep now... Goodbye! 🌸", "#FF69B4", "#DDA0DD"))
     except Exception as e:
         print(f"\n❌ Application error: {e}")
         import traceback

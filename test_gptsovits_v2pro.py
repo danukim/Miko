@@ -63,7 +63,7 @@ def test_v2pro_inference():
     print("\n✓ All models loaded successfully!")
     
     # Test text
-    test_text = "Hello! My name is Mitsuha. I am an artificial intelligence created by my master, Danu Kim!"
+    test_text = "Hello! My name is Miko. I am an artificial intelligence created by my master, Danu Kim!"
     
     print(f"\n{'='*60}")
     print("Generating Speech (Streaming Mode)")

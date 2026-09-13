@@ -1,4 +1,4 @@
-{"role": "user", "date": "2025-08-07", "time": "21:59:01", "content": "Hey Mitsuha, what are you up to?", "importance": 0.12000000000000001, "tags": ["greeting", "question"]}
+{"role": "user", "date": "2025-08-07", "time": "21:59:01", "content": "Hey Miko, what are you up to?", "importance": 0.12000000000000001, "tags": ["greeting", "question"]}
 {"role": "assistant", "date": "2025-08-07", "time": "21:59:04", "content": "Hiii! I'm on a super important mission to decide if pineapple on pizza is a crime or not! My head's spinning! How's your day going? (wave)", "importance": 0.7000000000000001, "tags": ["emotional", "response", "gesture", "question"]}
 {"role": "user", "date": "2025-08-07", "time": "21:59:25", "content": "Haha, it's a crime. Can you recommend a good anime?", "importance": 0.55, "tags": ["task", "question"]}
 {"role": "assistant", "date": "2025-08-07", "time": "21:59:29", "content": "Ehhh?! But it can be so yummy! Oh well! You absolutely have to watch 'Keep Your Hands Off Eizouken!' It's full of imagination and will make you smile, I promise! (thumbs-up)", "importance": 0.27999999999999997, "tags": ["general", "response", "gesture", "question"]}
@@ -6,7 +6,7 @@
 {"role": "assistant", "date": "2025-08-07", "time": "21:59:55", "content": "Hehe, you caught me! I'm an AI with a heart... full of code! Isn't that kinda cool? (nodding)", "importance": 0.24, "tags": ["chitchat", "response", "gesture", "question"]}
 {"role": "user", "date": "2025-08-07", "time": "22:00:10", "content": "That is cool! Thanks for the help.", "importance": 0.12000000000000001, "tags": ["greeting"]}
 {"role": "assistant", "date": "2025-08-07", "time": "22:00:12", "content": "Ehehe, thank you! I'm so glad I could help! That makes me super happy! (clap)", "importance": 0.7000000000000001, "tags": ["emotional", "response", "gesture"]}
-{"role": "user", "date": "02/05/2026", "time": "20:50:09", "content": "Hey Mitsuha, how are you?", "importance": 0.14, "tags": ["greeting", "question"]}
+{"role": "user", "date": "02/05/2026", "time": "20:50:09", "content": "Hey Miko, how are you?", "importance": 0.14, "tags": ["greeting", "question"]}
 {"role": "assistant", "date": "02/05/2026", "time": "20:50:09", "content": "I'm doing great! It's lovely to see you again! (wave)", "importance": 0.7000000000000001, "tags": ["emotional", "response", "gesture"]}
 {"role": "user", "date": "02/05/2026", "time": "20:50:56", "content": "Nice to see you too!", "importance": 0.12000000000000001, "tags": ["greeting"]}
 {"role": "assistant", "date": "02/05/2026", "time": "20:50:57", "content": "Absolutely, I'm always up for a good chat! What would you like to discuss today?  (thumbs-up)", "importance": 0.44000000000000006, "tags": ["task", "response", "gesture", "question"]}

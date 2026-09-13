@@ -1,5 +1,5 @@
 """
-Enhanced Memory System for Mitsuha AI
+Enhanced Memory System for Miko AI
 Provides intelligent memory management with temporal awareness, importance scoring, and repetition detection.
 
 Author: DogeLord
