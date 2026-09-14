@@ -10,3 +10,5 @@
 {"role": "assistant", "date": "02/05/2026", "time": "20:50:09", "content": "I'm doing great! It's lovely to see you again! (wave)", "importance": 0.7000000000000001, "tags": ["emotional", "response", "gesture"]}
 {"role": "user", "date": "02/05/2026", "time": "20:50:56", "content": "Nice to see you too!", "importance": 0.12000000000000001, "tags": ["greeting"]}
 {"role": "assistant", "date": "02/05/2026", "time": "20:50:57", "content": "Absolutely, I'm always up for a good chat! What would you like to discuss today?  (thumbs-up)", "importance": 0.44000000000000006, "tags": ["task", "response", "gesture", "question"]}
+{"role": "user", "date": "09/13/2026", "time": "17:02:55", "content": "Hey Miko, what's up?", "importance": 0.14, "tags": ["greeting", "question"]}
+{"role": "assistant", "date": "09/13/2026", "time": "17:02:56", "content": "Oh, hey! Nothing much, just enjoying the sunshine. How about you?\n(flat)", "importance": 0.11200000000000002, "tags": ["greeting", "response", "question"]}

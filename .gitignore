@@ -6,6 +6,10 @@
 !test_gptsovits_v2pro.py
 !app.py
 !audio_streamer.py
+!streaming_tts_helpers.py
+!MikoAudioReceiver.cs
+!setup.py
+!MITSUHA.iss
 !GPT_SoVITS/
 !GPT_SoVITS/**
 !requirements.txt

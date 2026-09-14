@@ -69,5 +69,21 @@ class TestMikoCore(unittest.TestCase):
         self.assertEqual(stripped, "Test")
 
 
+class TestStreamingTTSHelpers(unittest.TestCase):
+    def test_detect_sentence_boundary(self):
+        import streaming_tts_helpers as helpers
+        self.assertTrue(helpers.detect_sentence_boundary("Hello world."))
+        self.assertTrue(helpers.detect_sentence_boundary("How are you?"))
+        self.assertTrue(helpers.detect_sentence_boundary("Amazing!"))
+        self.assertFalse(helpers.detect_sentence_boundary("Incomplete sentence"))
+
+    def test_clean_sentence_for_tts(self):
+        import streaming_tts_helpers as helpers
+        cleaned = helpers.clean_sentence_for_tts("M.I.T.S.U.H.A. is ready! (wave)")
+        self.assertEqual(cleaned, "Miko is ready!")
+        cleaned2 = helpers.clean_sentence_for_tts("Hello Mitsuha (thumbs-up)")
+        self.assertEqual(cleaned2, "Hello Miko")
+
+
 if __name__ == "__main__":
     unittest.main()

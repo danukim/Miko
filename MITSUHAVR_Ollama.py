@@ -367,6 +367,19 @@ def initialize_and_run():
     # Load environment variables
     load_dotenv()
 
+    # Preload Ollama model asynchronously in the background so it is ready in VRAM
+    def warmup_ollama_background():
+        try:
+            import ollama
+            llm_model = os.getenv("LLM_MODEL")
+            if llm_model:
+                with suppress_stdout_stderr():
+                    ollama.generate(model=llm_model, prompt="", keep_alive=-1)
+        except Exception:
+            pass
+
+    threading.Thread(target=warmup_ollama_background, daemon=True).start()
+
     # Import streaming inference module for TTS
     # Add required paths for GPT-SoVITS dependencies
     gpt_sovits_base = os.path.join(os.path.dirname(os.path.abspath(__file__)), "GPT-SoVITS-v2pro-20250604")
@@ -595,7 +608,36 @@ def initialize_and_run():
                 bert_path=bert_path
             )
         
-        print(kawaii_gradient_text("✨ Voice ready! ✨", "#90EE90", "#32CD32"))
+        print(kawaii_gradient_text("✨ Voice engine loaded! ✨", "#90EE90", "#32CD32"))
+        
+        # Pre-warm GPT-SoVITS and cache reference audio features
+        if hasattr(MitsuTTS, "warmup") and ref_audio and prompt_text:
+            print(kawaii_gradient_text("⚡ Warming up voice models & cache... ", "#FFB6C1", "#DDA0DD"), end="", flush=True)
+            prompt_lang = os.getenv("GPT_SOVITS_PROMPT_LANG", "en")
+            warmup_text_map = {
+                "en": "Ready.",
+                "英文": "Ready.",
+                "ja": "準備完了。",
+                "日文": "準備完了。",
+                "zh": "准备就绪。",
+                "中文": "准备就绪。"
+            }
+            warmup_text = warmup_text_map.get(str(prompt_lang).lower(), "Ready.")
+
+            with suppress_stdout_stderr():
+                warm_ok = MitsuTTS.warmup(
+                    ref_audio_path=ref_audio,
+                    ref_text=prompt_text,
+                    ref_language=prompt_lang,
+                    target_text=warmup_text,
+                    target_language=prompt_lang
+                )
+            if warm_ok:
+                print(kawaii_gradient_text("✨ Voice ready! ✨", "#90EE90", "#32CD32"))
+            else:
+                print(kawaii_gradient_text("⚠️ Voice ready (deferred warmup)", "#FFA500", "#FF8C00"))
+        else:
+            print(kawaii_gradient_text("✨ Voice ready! ✨", "#90EE90", "#32CD32"))
         
     except Exception as e:
         print(kawaii_gradient_text("❌ Voice setup failed!", "#FF0000", "#8B0000"))
@@ -945,7 +987,7 @@ def initialize_and_run():
             
             sentence_buffer = ""
 
-            for chunk in ollama.chat(model=os.getenv("LLM_MODEL"), messages=prompt, stream=True):
+            for chunk in ollama.chat(model=os.getenv("LLM_MODEL"), messages=prompt, stream=True, keep_alive=-1):
                 chunk_content = chunk["message"]["content"]
                 
                 # Don't stop on newlines - let the model finish naturally
