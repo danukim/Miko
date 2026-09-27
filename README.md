@@ -52,7 +52,6 @@ graph TD
     
     subgraph Embodiment & Avatar
         Server --> Unity[Miko_desktop / Unity Standalone<br/>Real-Time Lip-sync & Motion Gestures]
-        Core --> OASIS[OASIS Hardware Turntable<br/>Face Tracking & Motor Control]
         Core --> SmartHome[Tuya IoT Device Control]
     end
 ```
@@ -241,10 +240,6 @@ Miko features a human-like memory system that goes beyond simple context windows
 ### 🔊 Low-Latency Audio Streaming (`audio_streamer.py` & `app.py`)
 - Real-time sentence chunking allows TTS generation and audio streaming to begin before the LLM finishes generating the entire response.
 - Streams raw 32kHz/24kHz/44.1kHz PCM audio chunks over HTTP/WebSocket directly to Unity's `MikoAudioReceiver.cs` for instantaneous playback and viseme/lip-sync generation.
-
-### 🎛️ OASIS Physical Turntable (`OASIS/`)
-- Custom 3D-printable physical hardware base with motor driver and bearing mount.
-- Driven via Arduino (`OASIS.ino`), allowing the physical avatar mount or camera to track the user dynamically around the room.
 
 ---
 
