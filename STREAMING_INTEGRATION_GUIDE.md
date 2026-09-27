@@ -14,7 +14,7 @@ The new system allows you to:
 
 ### 1. Update Your Miko Audio Playback Function
 
-Replace your existing `audio_playback_thread` function in `MITSUHAVR_Ollama.py`:
+Replace your existing `audio_playback_thread` function in `Miko.py`:
 
 ```python
 # Add this import at the top of your file

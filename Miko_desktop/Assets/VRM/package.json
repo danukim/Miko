@@ -1,0 +1,43 @@
+{
+  "name": "com.vrmc.univrm",
+  "version": "0.119.0",
+  "displayName": "VRM",
+  "description": "VRM importer",
+  "unity": "2021.3",
+  "keywords": [
+    "vrm",
+    "importer",
+    "avatar",
+    "vr"
+  ],
+  "author": {
+    "name": "VRM Consortium"
+  },
+  "dependencies": {
+    "com.vrmc.vrmshaders": "0.119.0",
+    "com.vrmc.gltf": "0.119.0",
+    "com.unity.ugui": "1.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "SimpleViewer",
+      "description": "VRM runtime loader sample",
+      "path": "Samples~/SimpleViewer"
+    },
+    {
+      "displayName": "FirstPersonSample",
+      "description": "First Person layer sample with multi camera",
+      "path": "Samples~/FirstPersonSample"
+    },
+    {
+      "displayName": "RuntimeExporterSample",
+      "description": "VRM runtime exporter sample",
+      "path": "Samples~/RuntimeExporterSample"
+    },
+    {
+      "displayName": "AnimationBridgeSample",
+      "description": "BlendShape animation clip sample",
+      "path": "Samples~/AnimationBridgeSample"
+    }
+  ]
+}

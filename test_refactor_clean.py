@@ -33,7 +33,7 @@ class TestAudioStreamer(unittest.TestCase):
     def test_audio_streamer_init(self):
         from audio_streamer import AudioStreamer, DualAudioPlayer, create_miko_audio_handler, create_mitsuha_audio_handler
         streamer = AudioStreamer("http://localhost:8000")
-        self.assertEqual(streamer.server_url, "http://localhost:8000")
+        self.assertEqual(streamer.server_url, "http://127.0.0.1:8000")
         self.assertFalse(streamer.is_streaming)
 
         player = DualAudioPlayer("http://localhost:8000", local_volume=0.0)
@@ -57,7 +57,7 @@ class TestAppServer(unittest.TestCase):
 class TestMikoCore(unittest.TestCase):
     def test_formatting_functions(self):
         import re
-        import MITSUHAVR_Ollama as miko
+        import Miko as miko
         miko.re = re
         self.assertTrue(hasattr(miko, "kawaii_gradient_text"))
         self.assertTrue(hasattr(miko, "gradient_text"))

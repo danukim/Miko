@@ -11,7 +11,9 @@ import time
 import queue
 
 class AudioStreamer:
-    def __init__(self, server_url: str = "http://localhost:8000"):
+    def __init__(self, server_url: str = "http://127.0.0.1:8000"):
+        if "localhost" in server_url:
+            server_url = server_url.replace("localhost", "127.0.0.1")
         self.server_url = server_url
         self.sample_rate = 22050
         self.is_streaming = False
@@ -169,11 +171,18 @@ class DualAudioPlayer:
     
     def stop_playback(self):
         """Stop playback and streaming"""
-        self.stop_event.set()
         self.streamer.end_stream()
         
         if self.playback_thread and self.playback_thread.is_alive():
+            # If local audio playback is active, allow remaining queued chunks to play
+            if self.local_volume > 0:
+                start_wait = time.time()
+                while not self.audio_queue.empty() and (time.time() - start_wait) < 3.0:
+                    time.sleep(0.05)
+            self.stop_event.set()
             self.playback_thread.join(timeout=2)
+        else:
+            self.stop_event.set()
     
     def _playback_worker(self, sample_rate: int):
         """Worker thread for local audio playback"""
@@ -207,7 +216,7 @@ class DualAudioPlayer:
             print(f"❌ Failed to initialize local audio playback: {e}")
 
 # Integration function for Miko
-def create_miko_audio_handler(server_url: str = "http://localhost:8000", 
+def create_miko_audio_handler(server_url: str = "http://127.0.0.1:8000", 
                               local_volume: float = 0.0):
     """
     Create an audio handler for Miko that streams to Unity
@@ -219,6 +228,8 @@ def create_miko_audio_handler(server_url: str = "http://localhost:8000",
     Returns:
         DualAudioPlayer instance ready for use
     """
+    if "localhost" in server_url:
+        server_url = server_url.replace("localhost", "127.0.0.1")
     streamer = AudioStreamer(server_url)
     player = DualAudioPlayer(streamer, local_volume)
     

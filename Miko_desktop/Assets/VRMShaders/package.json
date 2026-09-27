@@ -1,0 +1,17 @@
+{
+  "name": "com.vrmc.vrmshaders",
+  "version": "0.119.0",
+  "displayName": "VRM Shaders",
+  "description": "VRM Shaders",
+  "unity": "2021.3",
+  "keywords": [
+    "vrm",
+    "shader"
+  ],
+  "author": {
+    "name": "VRM Consortium"
+  },
+  "dependencies": {
+    "com.unity.modules.imageconversion": "1.0.0"
+  }
+}

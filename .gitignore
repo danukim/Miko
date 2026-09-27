@@ -1,24 +1,82 @@
 *
 !.gitignore
-!MITSUHAVR_Ollama.py
-!memory_enhanced.py
-!test_memory_enhanced.py
-!test_gptsovits_v2pro.py
+!.gitattributes
+!.gitmodules
+!.env.example
+
+# Core Python Entry Points & Modules
+!Miko.py
+!Miko_FishAudio.py
 !app.py
 !audio_streamer.py
+!fish_audio_helpers.py
 !streaming_tts_helpers.py
-!MikoAudioReceiver.cs
+!memory_enhanced.py
+
+# Tests
+!test_refactor_clean.py
+!test_fish_audio_integration.py
+!test_gptsovits_v2pro.py
+!test_memory_enhanced.py
+
+# Documentation & Config
+!README.md
+!STREAMING_INTEGRATION_GUIDE.md
+!LICENSE
+!AGENTS.md
+!CLAUDE.md
+!requirements.txt
+!conversation.jsonl
+
+# Scripts & Installers
+!start.bat
+!start_fishaudio.bat
+!start_gptsovits.bat
+!OneReality.bat
+!setup.bat
 !setup.py
-!MITSUHA.iss
+!Miko.iss
+!Miko.spec
+!MikoAudioReceiver.cs
+
+# Reference Audio & Assets
+!Kokomi_0.wav
+!clap.wav
+!nodding.wav
+!shaking head.wav
+!thumbs-up.wav
+!wave.wav
+!OneReality Logo Transparent.png
+
+# Local GPT-SoVITS Package
 !GPT_SoVITS/
 !GPT_SoVITS/**
-!requirements.txt
-!.env
-!conversation.jsonl
-!LICENSE
-!README.md
-!test_refactor_clean.py
-!start.bat
-!setup.bat
-!OneReality.bat
-!STREAMING_INTEGRATION_GUIDE.md
+
+# Unity Desktop Companion Application
+!Miko_desktop/
+!Miko_desktop/**
+
+# Unity Temporary & Build Cache Exclusions
+Miko_desktop/Library/
+Miko_desktop/Library/**
+Miko_desktop/Logs/
+Miko_desktop/Logs/**
+Miko_desktop/UserSettings/
+Miko_desktop/UserSettings/**
+Miko_desktop/Temp/
+Miko_desktop/Temp/**
+Miko_desktop/Obj/
+Miko_desktop/Obj/**
+Miko_desktop/*_BurstDebugInformation_DoNotShip/
+Miko_desktop/*_BurstDebugInformation_DoNotShip/**
+Miko_desktop/*.csproj
+Miko_desktop/*.sln
+Miko_desktop/*.userprefs
+
+# Ignore logs, virtual environments, secrets, and caches
+.env
+*.log
+venv/
+venv/**
+__pycache__/
+__pycache__/**
