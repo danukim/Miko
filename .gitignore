@@ -21,10 +21,7 @@
 
 # Documentation & Config
 !README.md
-!STREAMING_INTEGRATION_GUIDE.md
 !LICENSE
-!AGENTS.md
-!CLAUDE.md
 !requirements.txt
 !conversation.jsonl
 
